@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	// "database/sql"
 	"errors"
 	"io"
 	"log"
@@ -11,10 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"embed"
-
-	"github.com/GA-jahida/def-prog-exercises/safesql"
 	sql "github.com/GA-jahida/def-prog-exercises/safesql"
+
+	"embed"
 )
 
 //go:embed auth.html
@@ -80,7 +78,7 @@ func (ah *AuthHandler) createDefault(ctx context.Context) error {
 	}
 	log.Println("Default users not found, initializing...")
 	for _, u := range defaultUsers {
-		_, err := ah.db.ExecContext(ctx, safesql.New(`INSERT INTO users(name, password, privileges) VALUES(?,?,?)`), u.Name, u.password, u.Privileges)
+		_, err := ah.db.ExecContext(ctx, sql.New(`INSERT INTO users(name, password, privileges) VALUES(?,?,?)`), u.Name, u.password, u.Privileges)
 		if err != nil {
 			return err
 		}
@@ -124,7 +122,7 @@ func (ah *AuthHandler) getUser(r *http.Request) (*user, error) {
 	// BUT PLEASE, PLEASE, PLEASE never rely on client-provided
 	// data to perform auth checks unless it's signed and you validated
 	// the sgnature.
-	rows, err := ah.db.QueryContext(r.Context(), sql.New(`SELECT * FROM users WHERE id=`), c.Value)
+	rows, err := ah.db.QueryContext(r.Context(), sql.New(`SELECT * FROM users WHERE id=?`), c.Value)
 	if err != nil || !rows.Next() {
 		return nil, err
 	}
@@ -187,7 +185,7 @@ func Auth(ctx context.Context) *AuthHandler {
 	})
 	sm.HandleFunc("POST /auth/", func(w http.ResponseWriter, r *http.Request) {
 		u, pw := r.FormValue("name"), r.FormValue("password")
-		rows, err := db.QueryContext(r.Context(), sql.New(`SELECT id FROM users WHERE name='`), u, sql.New(`' and password='`), pw)
+		rows, err := db.QueryContext(r.Context(), sql.New(`SELECT id FROM users WHERE name=? and password=?`), u, pw)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			io.WriteString(w, err.Error())
