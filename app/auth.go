@@ -100,14 +100,6 @@ func (ah *AuthHandler) initialize(ctx context.Context) error {
 	return nil
 }
 
-func (ah *AuthHandler) hasPrivilege(r *http.Request, priv string) bool {
-	u, err := ah.getUser(r)
-	if err != nil {
-		return false
-	}
-	return u.Can(priv)
-}
-
 func (ah *AuthHandler) getUser(r *http.Request) (*user, error) {
 	c, err := r.Cookie("userid")
 	if err != nil {

@@ -3,7 +3,9 @@ package safesql
 import (
 	"context"
 	"database/sql"
+	"errors"
 
+	auth "github.com/GA-jahida/def-prog-exercises/authentication"
 	"github.com/GA-jahida/def-prog-exercises/safesql/internal/raw"
 )
 
@@ -22,6 +24,9 @@ type DB struct {
 }
 
 func (db *DB) QueryContext(ctx context.Context, query TrustedSQL, args ...any) (*sql.Rows, error) {
+	if auth.Must(ctx) {
+		return nil, errors.New("failed")
+	}
 	r, err := db.db.QueryContext(ctx, query.s, args...)
 	return r, err
 }
@@ -33,6 +38,9 @@ type (
 
 func (db *DB) ExecContext(ctx context.Context,
 	query TrustedSQL, args ...any) (Result, error) {
+	if auth.Must(ctx) {
+		return nil, errors.New("failed")
+	}
 	return db.db.ExecContext(ctx, query.s, args...)
 }
 

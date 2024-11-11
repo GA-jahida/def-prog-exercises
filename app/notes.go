@@ -11,6 +11,8 @@ import (
 	"text/template"
 
 	_ "embed"
+
+	"github.com/GA-jahida/def-prog-exercises/authentication"
 )
 
 //go:embed notes.html
@@ -94,22 +96,25 @@ func Notes(ctx context.Context, auth *AuthHandler) http.Handler {
 
 	// Home for the note page
 	n.HandleFunc("/notes/", func(w http.ResponseWriter, r *http.Request) {
-		if !nh.auth.hasPrivilege(r, "read") {
+		if _, ok := authentication.Check(ctx, authentication.Privilege("read")); !ok {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
+
 		notes, err := nh.getNotes(r.Context())
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			io.WriteString(w, err.Error())
 			return
 		}
+
 		u, err := auth.getUser(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			io.WriteString(w, err.Error())
 			return
 		}
+
 		// Write the template with the notes
 		if err = notesTpl.Execute(w, struct {
 			Notes []note
@@ -127,7 +132,7 @@ func Notes(ctx context.Context, auth *AuthHandler) http.Handler {
 
 	// Add notes
 	n.HandleFunc("/notes/add", func(w http.ResponseWriter, r *http.Request) {
-		if !nh.auth.hasPrivilege(r, "write") {
+		if _, ok := authentication.Check(ctx, authentication.Privilege("write")); !ok {
 			w.WriteHeader(http.StatusUnauthorized)
 			io.WriteString(w, `<html>
 				You are not authorized to add notes.
@@ -157,7 +162,7 @@ func Notes(ctx context.Context, auth *AuthHandler) http.Handler {
 
 	// Delete notes
 	n.HandleFunc("/notes/delete", func(w http.ResponseWriter, r *http.Request) {
-		if !nh.auth.hasPrivilege(r, "delete") {
+		if _, ok := authentication.Check(ctx, authentication.Privilege("delete")); !ok {
 			w.WriteHeader(http.StatusUnauthorized)
 			io.WriteString(w, `<html>
 				You are not authorized to delete notes.
