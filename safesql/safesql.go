@@ -3,7 +3,8 @@ package safesql
 import (
 	"context"
 	"database/sql"
-	"safesql/internal/raw"
+
+	"github.com/GA-jahida/def-prog-exercises/safesql/internal/raw"
 )
 
 type compileTimeConstant string
@@ -47,3 +48,23 @@ func init() {
 			return TrustedSQL{unsafe}
 		}
 }
+
+func NewFromInt(i int) TrustedSQL {
+	return TrustedSQL{string(i)}
+}
+
+func (t TrustedSQL) String() string {
+	return t.s
+}
+
+// func TrustedSQLConcat(ss ...TrustedSQL) TrustedSQL {
+// 	return TrustedSQL{string(i)}
+// }
+
+// func TrustedSQLJoin(ss []TrustedSQL, sep TrustedSQL) TrustedSQL {
+// 	return TrustedSQL{string(i)}
+// }
+
+// func TrustedSQLSplit(s TrustedSQL, sep TrustedSQL) []TrustedSQL {
+// 	return TrustedSQL{string(i)}
+// }

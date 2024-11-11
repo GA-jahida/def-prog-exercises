@@ -1,8 +1,8 @@
 package legacyconversions
 
 import (
-	"safesql"
-	"safesql/internal/raw"
+	"github.com/GA-jahida/def-prog-exercises/safesql"
+	"github.com/GA-jahida/def-prog-exercises/safesql/internal/raw"
 )
 
 var trustedSQLCtor = raw.TrustedSQLCtor.(func(string) safesql.TrustedSQL)
